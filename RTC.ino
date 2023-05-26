@@ -24,7 +24,8 @@ MQUnifiedsensor MQ135(placa, Voltage_Resolution, ADC_Bit_Resolution, pin, type);
 int pinSensor = 5;
 int pinLed = 13;
 int movimiento=0;
-int 
+int led_movimiento=0;
+int led_movimiento2=32;
 
 #include <Wire.h>
 #include "RTClib.h"
@@ -51,7 +52,7 @@ const char* ssid = "UbeeDE6D-2.4G";
 
 const char* password = "5BADF3DE6D";
 
-int BUILTIN_LED=0;
+//int BUILTIN_LED=0;
 
 //Dirección del broker MQTT
 
@@ -200,7 +201,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
 
   {
 
-  digitalWrite(BUILTIN_LED, LOW);  // Ponemos el voltaje del led en bajo por que el dispositivo lo tiene invertido     
+  //digitalWrite(BUILTIN_LED, LOW);  // Ponemos el voltaje del led en bajo por que el dispositivo lo tiene invertido     
 
   Serial.println(); 
 
@@ -214,7 +215,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
 
   {
 
-  digitalWrite(BUILTIN_LED, HIGH);   // Ponemos el volta del led en alto por que el dispositivo lo tiene invertido
+  //digitalWrite(BUILTIN_LED, HIGH);   // Ponemos el volta del led en alto por que el dispositivo lo tiene invertido
 
   Serial.println("Se apago el LED");
 
@@ -291,8 +292,10 @@ void reconnect() {
 void setup() {
   pinMode(pinSensor,INPUT);
   pinMode(pinLed,OUTPUT);
-  pinMode(BUILTIN_LED, OUTPUT);     // Inicialice el pin BUILTIN_LED como salida
-   
+//  pinMode(BUILTIN_LED, OUTPUT);     // Inicialice el pin BUILTIN_LED como salida
+
+  pinMode(led_movimiento, OUTPUT);  
+  pinMode(led_movimiento2, OUTPUT); 
    //MSD.MicroSD_init( );
 
   Serial.begin(115200);
@@ -413,6 +416,29 @@ void loop() {
   Serial.print("% - Temperatura: ");
 
   Serial.print(temperature);
+
+  if(temperature>25){
+    digitalWrite(led_movimiento,LOW);
+    digitalWrite(led_movimiento2,HIGH);
+    delay(500);
+    digitalWrite(led_movimiento,HIGH);
+    digitalWrite(led_movimiento2,LOW);
+    delay(500);
+    digitalWrite(led_movimiento,LOW);
+    digitalWrite(led_movimiento2,HIGH);
+    delay(500);
+    digitalWrite(led_movimiento,HIGH);
+    digitalWrite(led_movimiento2,LOW);
+    delay(500);
+    digitalWrite(led_movimiento,LOW);
+    digitalWrite(led_movimiento2,HIGH);
+    delay(500);
+    digitalWrite(led_movimiento,HIGH);
+    digitalWrite(led_movimiento2,LOW);
+  }else{
+    digitalWrite(led_movimiento,LOW);
+    digitalWrite(led_movimiento2,LOW); 
+  }
 
   Serial.println("°C");
   delay(2000);
