@@ -23,13 +23,17 @@ double CO2 = (0);
 MQUnifiedsensor MQ135(placa, Voltage_Resolution, ADC_Bit_Resolution, pin, type);
 int pinSensor = 5;
 int pinLed = 13;
-
-
+int movimiento=0;
+int 
 
 #include <Wire.h>
 #include "RTClib.h"
 #include "LCD.h"
 //#include "MicroSD.h"
+//buzzer
+#define BUZZER_PIN 4   // Pin GPIO al que está conectado el buzzer
+#define CHANNEL 0      // Canal LEDC utilizado para generar el tono
+#define FREQUENCY 4000 // Frecuencia del tono en Hz
 
 //MicroSD MSD;
 RTC_DS1307 rtc;
@@ -322,6 +326,8 @@ void setup() {
     MQ135.serialDebug(false); 
  
 
+  ledcSetup(CHANNEL, FREQUENCY, 8);     // Configura el canal LEDC
+  ledcAttachPin(BUZZER_PIN, CHANNEL);   // Asocia el pin GPIO al canal LEDC
 }
 
  
@@ -392,9 +398,9 @@ void loop() {
 
  
 
-  char payload[100];
+  char payload[170];
 
-  sprintf(payload, "{\"humidity\": %s, \"temperature\": %s, \"CO2\": %.2f}", humidityStr, temperatureStr, CO2);
+  sprintf(payload, "{\"humidity\": %s, \"temperature\": %s, \"CO2\": %.2f, \"movimiento\": %i}", humidityStr, temperatureStr, CO2, movimiento);
 
   client.publish("arg/sensor", payload);
 
@@ -417,79 +423,15 @@ void loop() {
 
     if(digitalRead(pinSensor))
   {
+    movimiento=1;
     digitalWrite(pinLed,HIGH);
-    delay(1000);
+    Serial.println("Vibrando");
+    ledcWriteTone(CHANNEL, FREQUENCY);    // Genera el tono en el buzzer
    }
-   else
+   else{
+     movimiento=0;
      digitalWrite(pinLed,LOW);
-
+     ledcWriteTone(CHANNEL, 0);
+   }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-#include <Wire.h>
-#include "RTClib.h"
-#include "LCD.h"
-#include "MicroSD.h"
-
-MicroSD MSD;
-RTC_DS1307 rtc;
-LCD_Display display;
-
-void setup(){
-    Serial.begin(115200);  // Inicializar baudrate a 115200
-    Wire.begin();
-
-    rtc.begin();      // Inicializar configuración del reloj
-    display.init();   // Inicializar pantalla LCD
-
-    while (!Serial) {
-        ;  // Esperar a que la conexión serial se establezca (solo para fines de depuración)
-    }
-
-    if (!rtc.isrunning()) {
-        Serial.println(F("El reloj no está funcionando, configurando con la fecha y hora actual."));
-        rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
-    }
-
-    Serial.println(F("El DS-1307 ha sido configurado exitosamente."));
-
-    MSD.MicroSD_init( );
-}
-
-void loop(){
-    DateTime now = rtc.now();  // Obtener la fecha y hora actual del reloj
-
-    // Obtener los valores de tiempo y fecha
-    uint8_t hour = now.hour();
-    uint8_t minute = now.minute();
-    uint8_t second = now.second();
-    uint8_t day = now.day();
-    uint8_t month = now.month();
-    uint16_t year = now.year();
-
-    display.showDateTime(hour, minute, second, day, month, year);  // Mostrar la fecha y hora en la pantalla LCD
-
-    delay ( 2000 ); // this speeds up the simulation
-    Serial.println("Guardando en MicroSD...");
-    MSD.SaveFile ( );
-
-    delay(1000);
-}
-*/
