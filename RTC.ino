@@ -392,9 +392,9 @@ void loop() {
 
  
 
-  char payload[50];
+  char payload[100];
 
-  sprintf(payload, "{\"humidity\": %s, \"temperature\": %s}", humidityStr, temperatureStr);
+  sprintf(payload, "{\"humidity\": %s, \"temperature\": %s, \"CO2\": %.2f}", humidityStr, temperatureStr, CO2);
 
   client.publish("arg/sensor", payload);
 
